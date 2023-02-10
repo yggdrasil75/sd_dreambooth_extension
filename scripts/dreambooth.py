@@ -215,7 +215,7 @@ def performance_wizard(model_name):
         attention = "xformers"
     try:
         stop_text_encoder = 0.75
-        t = torch.cuda.get_device_properties(q.device).total_memory
+        t = torch.cuda.get_device_properties(shared.device).total_memory
         gb = math.ceil(t / 1073741824)
         print(f"Total VRAM: {gb}")
         if gb >= 24:
