@@ -35,10 +35,25 @@ CLIP_stop_at_last_layers = 2
 config = os.path.join(script_path, "configs", "v1-inference.yaml")
 force_cpu = False
 
+def extract_device_id(args, name):
+    for x in range(len(args)):
+        if name in args[x]: return args[x+1]
+    return None
+
 device = torch.device("cpu")
 if torch.cuda.is_available():
-    device = torch.device("cuda")
+    if "shared" not in sys.modules:
+        commandline_args = os.environ.get('COMMANDLINE_ARGS', "") #re-parse the commandline arguments because using the shared.py module creates an import loop.
+        sys.argv += shlex.split(commandline_args)
+        device_id = extract_device_id(sys.argv, '--device-id')
+    else:
+        device_id = shared.cmd_opts.device_id
 
+    if device_id is not None:
+        cuda_device = f"cuda:{device_id}"
+        device = torch.device(cuda_device)
+    else:
+        device = torch.device("cuda")
 if getattr(torch, 'has_mps', False):
     try:
         torch.zeros(1).to(torch.device("mps"))
