@@ -131,8 +131,8 @@ class DbDataset(torch.utils.data.Dataset):
         if self.vae is not None and image_path not in self.latents_cache:
             image = self.open_and_trim(image_path, res)
             img_tensor = self.image_transforms(image)
-            img_tensor = img_tensor.unsqueeze(int(db_shared.device_id)).to(device=self.vae.device, dtype=self.vae.dtype)
-            latents = self.vae.encode(img_tensor).latent_dist.sample().squeeze(int(db_shared.device_id)).to("cpu")
+            img_tensor = img_tensor.unsqueeze(0).to(device=self.vae.device, dtype=self.vae.dtype)
+            latents = self.vae.encode(img_tensor).latent_dist.sample().squeeze(0).to("cpu")
         self.latents_cache[image_path] = latents
 
     def cache_caption(self, image_path, caption):
